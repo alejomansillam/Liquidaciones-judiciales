@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiqJudicial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0e1c2f;--ink2:#2a3d52;--slate:#4a6180;--muted:#8a9bb0;--line:#dde4ed;
+  --bg:#f3f6fa;--surface:#fff;--gold:#c8923a;--gold-lt:#fdf3e3;
+  --teal:#1a7a6e;--teal-lt:#e4f5f3;--green:#1a7a3a;--green-lt:#e6f5eb;
+  --input-bg:#fef9f0;--auto-bg:#edf4fb;
+  --serif:'Fraunces',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+  --r:10px;--shadow:0 2px 12px rgba(14,28,47,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.5}
+
+header{background:var(--ink);color:#fff;padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.h-logo{font-family:var(--serif);font-size:20px;font-weight:600;color:#fff}.h-logo span{color:var(--gold)}
+.h-sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 10px}
+.h-sub{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase}
+.h-badge{font-size:11px;color:rgba(255,255,255,.35);font-family:var(--mono)}
+
+.wrap{max-width:1020px;margin:0 auto;padding:36px 24px 60px;display:flex;flex-direction:column;gap:24px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card-title{padding:16px 24px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.ct-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ct-icon.blue{background:#e8f0fb}.ct-icon.gold{background:var(--gold-lt)}.ct-icon.dark{background:var(--ink)}
+.card-title h2{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink)}
+.card-title .ct-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.card-body{padding:24px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--slate)}
+.field input,.field select{font-family:var(--sans);font-size:14px;font-weight:500;padding:10px 13px;border:1.5px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;appearance:none}
+.field input:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,58,.12)}
+.field input[readonly]{background:var(--auto-bg);color:var(--slate);font-family:var(--mono);font-size:13px;border-color:#ccd8e8;cursor:default}
+.field .hint{font-size:11px;color:var(--muted)}
+.select-wrap{position:relative}
+.select-wrap select{width:100%;padding-right:32px;cursor:pointer}
+.select-wrap::after{content:'▾';position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px}
+.divider{height:1px;background:var(--line);margin:4px 0}
+
+.btn-primary{background:var(--ink);color:#fff;border:none;padding:12px 28px;font-family:var(--sans);font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .15s,transform .1s}
+.btn-primary:hover{background:var(--ink2);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--ink2);border:1.5px solid var(--line);padding:10px 20px;font-family:var(--sans);font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;white-space:nowrap}
+.btn-outline:hover{border-color:var(--ink);background:var(--bg)}
+.btn-outline.green{border-color:#a8d5b5;color:var(--green)}.btn-outline.green:hover{background:var(--green-lt);border-color:var(--green)}
+
+/* Sección Córdoba */
+.cba-banner{display:flex;align-items:center;justify-content:space-between;background:var(--teal-lt);border:1px solid #a8d5ce;border-radius:8px;padding:11px 16px;margin-bottom:16px}
+.cba-banner-label{font-size:12px;color:var(--teal);font-weight:600;display:flex;align-items:center;gap:8px}
+.btn-teal{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--teal);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-teal:hover{background:#155f55}
+.cba-section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.cba-section-title::after{content:'';flex:1;height:1px;background:var(--gold-lt)}
+.btn-link{display:inline-flex;align-items:center;gap:6px;padding:0 14px;background:var(--ink);color:#fff;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .15s;align-self:stretch}
+.btn-link:hover{background:var(--ink2)}
+
+/* Tabla liquidación */
+.liq-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+.liq-table{width:100%;border-collapse:collapse}
+.liq-table tr{border-bottom:1px solid var(--line)}
+.liq-table tr:last-of-type{border-bottom:none}
+.liq-table td{padding:10px 16px;font-size:13.5px}
+.liq-table td:last-child{text-align:right;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink2);white-space:nowrap}
+.liq-table tr.gh td{background:var(--bg);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:7px 16px}
+.liq-table tr.ind td:first-child{padding-left:30px;color:var(--slate);font-size:13px}
+.liq-table tr.stotal td{background:#f7f9fc;font-weight:600}
+.liq-table tr.stotal td:first-child{padding-left:30px}
+.liq-table tr.gtotal td{background:var(--ink);color:#fff;font-weight:700;font-size:14px;padding:15px 16px}
+.liq-table tr.gtotal td:last-child{font-family:var(--mono);font-size:16px;color:var(--gold)}
+
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;vertical-align:middle;margin-left:5px}
+.bg{background:#edf2f8;color:var(--slate)}.bo{background:var(--gold-lt);color:#a0621a}.bt{background:var(--teal-lt);color:var(--teal)}
+
+.meta-bar{display:flex;gap:24px;flex-wrap:wrap;padding:16px;border-top:1px solid var(--line)}
+.meta-item .mk{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.meta-item .mv{font-size:13px;font-weight:500;color:var(--ink2)}
+
+/* Opciones de pago */
+.pay-stack{display:flex;flex-direction:column;gap:10px}
+.pay-option{border:1.5px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .15s,box-shadow .15s;cursor:pointer}
+.pay-option:hover{border-color:var(--gold);box-shadow:0 3px 14px rgba(200,146,58,.09)}
+.pay-option.contado-quita{border-color:var(--green)}
+.pay-option-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg);user-select:none}
+.pay-option.contado-quita .pay-option-head{background:var(--green-lt)}
+.poh-left{display:flex;align-items:center;gap:11px}
+.pay-num{width:27px;height:27px;background:var(--ink);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+.pay-option.featured .pay-num{background:var(--gold)}
+.pay-option.contado-quita .pay-num{background:var(--green)}
+.pay-label{font-weight:600;font-size:13px}
+.pay-sub{font-size:11px;color:var(--muted)}
+.pay-option.contado-quita .pay-sub{color:var(--green);font-weight:600}
+.pay-amount{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--ink)}
+.pay-option.featured .pay-amount{color:var(--gold)}
+.pay-option.contado-quita .pay-amount{color:var(--green)}
+.pay-amount-tachado{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:line-through;margin-right:6px}
+.pay-chevron{color:var(--muted);font-size:11px;margin-left:10px;transition:transform .2s}
+.pay-option.open .pay-chevron{transform:rotate(180deg)}
+.pay-detail{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.pay-detail.open{max-height:500px;padding:0 18px 14px}
+.pdr{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:12px;color:var(--slate)}
+.pdr:first-child{border-top:none}
+.pdr span:last-child{font-family:var(--mono);font-weight:500;color:var(--ink2)}
+.pdr.saving span{color:var(--green);font-weight:700}
+.quita-banner{background:var(--green-lt);border:1px solid #a8d5b5;border-radius:7px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--green);font-weight:600}
+.quita-banner-blue{background:#f0f7ff;border:1px solid #a8c5e8;border-radius:7px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#1a4a7a;font-weight:600}
+
+.actions-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nota{font-size:11px;color:var(--muted);font-style:italic;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+
+.toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(14,28,47,.1);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1;transform:translateY(0)}
+#resultado{display:none}
+
+@media (max-width:720px){.liq-wrap{grid-template-columns:1fr}.g4,.g5{grid-template-columns:1fr 1fr}header{padding:0 20px}.wrap{padding:20px 16px 48px}}
+@media print{header,.wrap>div:first-child,.actions-row{display:none!important}#resultado{display:block!important}body{background:white}.card{box-shadow:none;border:1px solid #ccc}.liq-wrap{grid-template-columns:1fr}.pay-detail{max-height:none!important;padding:0 18px 14px!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:baseline;gap:10px">
+    <div class="h-logo">Liq<span>Judicial</span></div>
+    <div class="h-sep"></div>
+    <div class="h-sub">Sistema de liquidaciones</div>
+  </div>
+  <div class="h-badge">v3.0 · AR</div>
+</header>
+
+<div class="wrap">
+<div>
+  <div class="section-label">Ingreso de datos</div>
+  <div class="card">
+    <div class="card-title">
+      <div class="ct-icon blue">📋</div>
+      <div><h2>Datos del caso</h2><div class="ct-sub">Campos naranjas = editables · Campos azules = automáticos por provincia</div></div>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
+
+      <div class="g2">
+        <div class="field">
+          <label>DNI del deudor</label>
+          <div style="display:flex;gap:8px">
+            <input id="dni" type="text" placeholder="Ej: 24591986" style="flex:1" onkeydown="if(event.key==='Enter')buscarCliente()">
+            <button onclick="buscarCliente()" style="display:inline-flex;align-items:center;gap:6px;padding:0 16px;background:var(--ink);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s" onmouseover="this.style.background='var(--ink2)'" onmouseout="this.style.background='var(--ink)'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Buscar
+            </button>
+          </div>
+          <div class="hint" id="hint-dni">Buscá el cliente para autocompletar los datos</div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="field">
+        <label>Carátula / Autos</label>
+        <input id="caratula" type="text" placeholder="Apellido c/ demandado s/ cobro de pesos">
+      </div>
+
+      <div class="g5">
+        <div class="field">
+          <label>Jurisdicción</label>
+          <div class="select-wrap">
+            <select id="provincia" onchange="actualizarParams()">
+              <optgroup label="── Ciudad y Provincia BA ──">
+                <option value="CABA">Ciudad de Buenos Aires</option>
+                <option value="BS AS">Provincia de Buenos Aires</option>
+              </optgroup>
+              <optgroup label="── Centro ──">
+                <option value="CÓRDOBA">Córdoba</option>
+                <option value="SANTA FE">Santa Fe</option>
+                <option value="ENTRE RÍOS">Entre Ríos</option>
+              </optgroup>
+              <optgroup label="── Cuyo ──">
+                <option value="MENDOZA">Mendoza</option>
+                <option value="SAN JUAN">San Juan</option>
+                <option value="SAN LUIS">San Luis</option>
+                <option value="LA RIOJA">La Rioja</option>
+              </optgroup>
+              <optgroup label="── NOA ──">
+                <option value="SALTA">Salta</option>
+                <option value="JUJUY">Jujuy</option>
+                <option value="TUCUMÁN">Tucumán</option>
+                <option value="CATAMARCA">Catamarca</option>
+                <option value="SANTIAGO DEL ESTERO">Santiago del Estero</option>
+              </optgroup>
+              <optgroup label="── NEA ──">
+                <option value="CORRIENTES">Corrientes</option>
+                <option value="CHACO">Chaco</option>
+                <option value="FORMOSA">Formosa</option>
+                <option value="MISIONES">Misiones</option>
+              </optgroup>
+              <optgroup label="── Patagonia ──">
+                <option value="NEUQUÉN">Neuquén</option>
+                <option value="RÍO NEGRO">Río Negro</option>
+                <option value="CHUBUT">Chubut</option>
+                <option value="SANTA CRUZ">Santa Cruz</option>
+                <option value="TIERRA DEL FUEGO">Tierra del Fuego</option>
+                <option value="LA PAMPA">La Pampa</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>% Honorarios</label>
+          <input id="pct_hon" type="number" step="0.01" min="0" max="100" value="20.00" oninput="overrideHon=true;document.getElementById('hint-hon').textContent='✎ Manual';document.getElementById('hint-hon').style.color='var(--gold)'">
+          <div class="hint" id="hint-hon">Automático por provincia</div>
+        </div>
+        <div class="field">
+          <label>% IIBB</label>
+          <input id="pct_iibb" type="number" step="0.01" min="0" max="100" value="0.00" oninput="overrideIibb=true;document.getElementById('hint-iibb').textContent='✎ Manual';document.getElementById('hint-iibb').style.color='var(--gold)'">
+          <div class="hint" id="hint-iibb">Automático por provincia</div>
+        </div>
+        <div class="field">
+          <label>Inicio de mora</label>
+          <input id="fecha_mora" type="date">
+          <div class="hint" id="hint-mora">Informativo para el cliente</div>
+        </div>
+        <div class="field">
+          <label>Fecha liquidación</label>
+          <input id="fecha_liq" type="date">
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="field">
+          <label>Abogado/a Responsable Inscripto IVA</label>
+          <div class="select-wrap">
+            <select id="iva_resp">
+              <option value="SI">Sí — aplica IVA s/ honorarios (21%)</option>
+              <option value="NO">No — sin IVA sobre honorarios</option>
+            </select>
+          </div>
+          <div class="hint">IVA sobre intereses siempre aplica al 21%</div>
+        </div>
+        <div></div>
+      </div>
+
+      <!-- ══ SECCIÓN CÓRDOBA ══ -->
+      <div id="seccion-cordoba" style="display:none">
+        <div class="divider" style="margin-bottom:16px"></div>
+        <div class="cba-section-title">⚖ Córdoba — Parámetros especiales</div>
+
+        <!-- Jus -->
+        <div class="g2" style="margin-bottom:16px">
+          <div class="field">
+            <label>Valor del jus ($)</label>
+            <div style="display:flex;gap:8px">
+              <input id="valor_jus" type="text" placeholder="Ej: 44.234,06" style="flex:1">
+              <a href="https://www.justiciacordoba.gob.ar/JusticiaCordoba/Servicios/CalculosJudiciales.aspx" target="_blank" class="btn-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Ver oficial
+              </a>
+            </div>
+            <div class="hint">Apertura de carpeta = 3 jus (se suma a gastos)</div>
+          </div>
+          <div class="field">
+            <label>Apertura de carpeta (3 jus)</label>
+            <input id="r-apertura-jus" readonly placeholder="Se calcula automáticamente">
+            <div class="hint">3 × valor del jus</div>
+          </div>
+        </div>
+
+        <!-- Índices -->
+        <div class="cba-banner">
+          <div class="cba-banner-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Conectado a tu planilla de índices TSJ
+          </div>
+          <button class="btn-teal" onclick="cargarIndices()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.84"/></svg>
+            Cargar índices
+          </button>
+        </div>
+        <div class="hint" id="hint-indices" style="margin-bottom:16px">Cargá los índices antes de calcular</div>
+
+        <!-- Intereses calculados -->
+        <div class="g2" style="margin-bottom:16px">
+          <div class="field">
+            <label>Intereses calculados</label>
+            <input id="r-intereses-cba" readonly placeholder="Cargá los índices primero">
+            <div class="hint" id="hint-intereses-cba">Capital × ((100+Tm)/(100+T0)−1) + 36%/365 × días</div>
+          </div>
+          <div class="field">
+            <label>Variación del índice</label>
+            <input id="r-variacion-indice" readonly placeholder="—">
+            <div class="hint">T0: <span id="lbl-t0">—</span> · Tm: <span id="lbl-tm">—</span></div>
+          </div>
+        </div>
+
+        <!-- Capital y gastos Córdoba -->
+        <div class="g2">
+          <div class="field">
+            <label>Capital original ($)</label>
+            <input id="capital_cba" type="number" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label>Gastos judiciales ($)</label>
+            <input id="gastos_cba" type="number" placeholder="0.00">
+          </div>
+        </div>
+
+        <div style="background:var(--gold-lt);border:1px solid #e8d5b0;border-radius:8px;padding:11px 14px;margin-top:14px;font-size:12px;color:#7a5010">
+          ⚠ La fecha de inicio de mora es <strong>obligatoria</strong> en Córdoba.
+        </div>
+      </div>
+      <!-- ══ FIN SECCIÓN CÓRDOBA ══ -->
+
+      <div class="divider"></div>
+
+      <!-- Campos para el resto de provincias -->
+      <div class="g4" id="campos-manuales">
+        <div class="field">
+          <label>Capital original ($)</label>
+          <input id="capital" type="number" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Intereses financieros ($)</label>
+          <input id="int_fin" type="number" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Intereses punitorios ($)</label>
+          <input id="int_pun" type="number" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Gastos judiciales ($)</label>
+          <input id="gastos" type="number" placeholder="0.00">
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;padding-top:2px">
+        <button class="btn-primary" onclick="calcular()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+          Calcular liquidación
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RESULTADO -->
+<div id="resultado">
+  <div class="section-label">Resultado</div>
+  <div class="liq-wrap">
+
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon dark">📊</div>
+        <div><h2>Liquidación detallada</h2><div class="ct-sub" id="res-sub"></div></div>
+      </div>
+      <table class="liq-table">
+        <tr class="gh"><td colspan="2">Deuda principal</td></tr>
+        <tr><td>Capital original</td><td id="r-capital">—</td></tr>
+        <tr class="gh"><td colspan="2">Intereses de capital</td></tr>
+        <tr class="ind" id="row-int-fin"><td>Intereses financieros</td><td id="r-int-fin">—</td></tr>
+        <tr class="ind" id="row-int-pun"><td>Intereses punitorios</td><td id="r-int-pun">—</td></tr>
+        <tr class="ind" id="row-int-idx" style="display:none"><td>Tasa pasiva <span id="badge-idx" class="badge bg"></span></td><td id="r-int-idx">—</td></tr>
+        <tr class="ind" id="row-int-3pct" style="display:none"><td>Int. 3% mensual (36% anual) <span id="badge-dias" class="badge bg"></span></td><td id="r-int-3pct">—</td></tr>
+        <tr class="stotal"><td>Subtotal intereses</td><td id="r-int-total">—</td></tr>
+        <tr class="ind"><td>IVA s/ intereses <span class="badge bg">21%</span></td><td id="r-iva-int">—</td></tr>
+        <tr class="gh"><td colspan="2">Gastos y honorarios</td></tr>
+        <tr><td>Gastos judiciales</td><td id="r-gastos">—</td></tr>
+        <tr id="row-apertura" class="ind" style="display:none"><td>Apertura de carpeta (3 jus)</td><td id="r-apertura-tabla">—</td></tr>
+        <tr><td>Honorarios <span id="badge-hon" class="badge bo"></span></td><td id="r-hon">—</td></tr>
+        <tr id="row-iva-hon" class="ind"><td>IVA s/ honorarios <span class="badge bo">Resp. Inscripto</span></td><td id="r-iva-hon">—</td></tr>
+        <tr id="row-iibb" class="ind"><td>IIBB s/ honorarios <span id="badge-iibb" class="badge bt"></span></td><td id="r-iibb">—</td></tr>
+        <tr class="gtotal"><td>Total deuda actualizada</td><td id="r-total">—</td></tr>
+      </table>
+      <div class="meta-bar">
+        <div class="meta-item"><div class="mk">Jurisdicción</div><div class="mv" id="m-prov">—</div></div>
+        <div class="meta-item"><div class="mk">Inicio mora</div><div class="mv" id="m-mora">—</div></div>
+        <div class="meta-item"><div class="mk">Fecha liquidación</div><div class="mv" id="m-fecha">—</div></div>
+        <div class="meta-item"><div class="mk">% Honorarios</div><div class="mv" id="m-hon">—</div></div>
+        <div class="meta-item"><div class="mk">IVA honorarios</div><div class="mv" id="m-iva">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon gold">📅</div>
+        <div><h2>Opciones de pago</h2><div class="ct-sub">Clic para ver el desglose</div></div>
+      </div>
+      <div class="card-body">
+        <div class="pay-stack">
+          <div class="pay-option contado-quita" onclick="togglePay(this)">
+            <div class="pay-option-head">
+              <div class="poh-left">
+                <div class="pay-num">1</div>
+                <div><div class="pay-label">Contado — pago único</div><div class="pay-sub">✦ Quita 100% de intereses</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <span class="pay-amount-tachado" id="p1-tachado">—</span>
+                <div class="pay-amount" id="p1-total">—</div>
+                <div class="pay-chevron">▾</div>
+              </div>
+            </div>
+            <div class="pay-detail"><div id="p1-det"></div></div>
+          </div>
+          <div class="pay-option featured" onclick="togglePay(this)">
+            <div class="pay-option-head">
+              <div class="poh-left">
+                <div class="pay-num">2</div>
+                <div><div class="pay-label">3 cuotas</div><div class="pay-sub">50% quita intereses · 6% financiación</div></div>
+              </div>
+              <div style="display:flex;align-items:center">
+                <div class="pay-amount" id="p2-total">—</div>
+                <div class="pay-chevron">▾</div>
+              </div>
+            </div>
+            <div class="pay-detail"><div id="p2-det"></div></div>
+          </div>
+          <div class="pay-option" onclick="togglePay(this)">
+            <div class="pay-option-head">
+              <div class="poh-left">
+                <div class="pay-num">3</div>
+                <div><div class="pay-label">6 cuotas</div><div class="pay-sub">25% quita intereses · 12% financiación</div></div>
+              </div>
+              <div style="display:flex;align-items:center">
+                <div class="pay-amount" id="p3-total">—</div>
+                <div class="pay-chevron">▾</div>
+              </div>
+            </div>
+            <div class="pay-detail"><div id="p3-det"></div></div>
+          </div>
+        </div>
+        <p class="nota">(*) Propuesta sujeta a aprobación judicial. La quita aplica exclusivamente al pago contado en un único depósito.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="actions-row">
+        <button class="btn-outline" onclick="window.print()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir / PDF
+        </button>
+        <button class="btn-outline" onclick="copiarCliente()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar opciones cliente
+        </button>
+        <button class="btn-outline green" onclick="copiarInterno()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Copiar registro interno
+        </button>
+        <button class="btn-outline" onclick="limpiar()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.84"/></svg>
+          Nueva liquidación
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqUMkPAP3B7bRs6AT7NqercF2LM1XJV8j2STn02_XzTDAk0DNay2_0b-XwP9nBmzIG/exec';
+
+const PROVINCIAS = {
+  'CABA':                {hon:0.20, iibb:0},
+  'BS AS':               {hon:0.20, iibb:0.035},
+  'CÓRDOBA':             {hon:0.225,iibb:0},
+  'SANTA FE':            {hon:0.20, iibb:0},
+  'ENTRE RÍOS':          {hon:0.20, iibb:0},
+  'MENDOZA':             {hon:0.20, iibb:0},
+  'SAN JUAN':            {hon:0.20, iibb:0},
+  'SAN LUIS':            {hon:0.20, iibb:0},
+  'LA RIOJA':            {hon:0.20, iibb:0},
+  'SALTA':               {hon:0.15, iibb:0},
+  'JUJUY':               {hon:0.20, iibb:0},
+  'TUCUMÁN':             {hon:0.20, iibb:0},
+  'CATAMARCA':           {hon:0.20, iibb:0},
+  'SANTIAGO DEL ESTERO': {hon:0.20, iibb:0},
+  'CORRIENTES':          {hon:0.20, iibb:0},
+  'CHACO':               {hon:0.20, iibb:0},
+  'FORMOSA':             {hon:0.20, iibb:0},
+  'MISIONES':            {hon:0.20, iibb:0},
+  'NEUQUÉN':             {hon:0.20, iibb:0},
+  'RÍO NEGRO':           {hon:0.20, iibb:0},
+  'CHUBUT':              {hon:0.20, iibb:0},
+  'SANTA CRUZ':          {hon:0.20, iibb:0},
+  'TIERRA DEL FUEGO':    {hon:0.20, iibb:0},
+  'LA PAMPA':            {hon:0.20, iibb:0},
+};
+
+// ══════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════
+let overrideHon  = false;
+let overrideIibb = false;
+let _sheetsData  = null;
+let _d           = {};
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.getElementById('fecha_liq').value = new Date().toISOString().split('T')[0];
+
+function actualizarParams() {
+  const prov  = document.getElementById('provincia').value;
+  const cfg   = PROVINCIAS[prov] || {hon:0.20, iibb:0};
+  const esCba = prov === 'CÓRDOBA';
+
+  if (!overrideHon)  { document.getElementById('pct_hon').value  = (cfg.hon  * 100).toFixed(2); document.getElementById('hint-hon').textContent  = 'Automático por provincia'; document.getElementById('hint-hon').style.color  = ''; }
+  if (!overrideIibb) { document.getElementById('pct_iibb').value = (cfg.iibb * 100).toFixed(2); document.getElementById('hint-iibb').textContent = 'Automático por provincia'; document.getElementById('hint-iibb').style.color = ''; }
+
+  document.getElementById('seccion-cordoba').style.display = esCba ? '' : 'none';
+  document.getElementById('campos-manuales').style.display = esCba ? 'none' : '';
+
+  if (esCba) {
+    document.getElementById('hint-mora').textContent = '⚠ Obligatoria en Córdoba';
+    document.getElementById('hint-mora').style.color = '#c8923a';
+  } else {
+    document.getElementById('hint-mora').textContent = 'Informativo para el cliente';
+    document.getElementById('hint-mora').style.color = '';
+  }
+}
+actualizarParams();
+
+// Auto-completar índices cuando cambian fechas
+document.getElementById('fecha_mora').addEventListener('change', async () => {
+  if (document.getElementById('provincia').value === 'CÓRDOBA') {
+    if (!_sheetsData) await cargarIndices();
+    else autoCompletarIndices();
+  }
+});
+document.getElementById('fecha_liq').addEventListener('change', () => { if (_sheetsData) autoCompletarIndices(); });
+
+// ══════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════
+function fmt(n) { return '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function pct(n) { return n.toFixed(2) + '%'; }
+function fmtF(iso) { if (!iso) return '—'; return iso.split('-').reverse().join('/'); }
+function dias(d1, d2) { return Math.round((new Date(d2) - new Date(d1)) / 86400000); }
+
+function parsearNum(str) {
+  if (!str) return 0;
+  str = String(str).trim().replace(/\s/g, '');
+  if (str.includes(',')) str = str.replace(/\./g, '').replace(',', '.');
+  return parseFloat(str) || 0;
+}
+
+// ══════════════════════════════════════════
+// BÚSQUEDA DE CLIENTE POR DNI
+// ══════════════════════════════════════════
+async function buscarCliente() {
+  const dni  = document.getElementById('dni').value.trim();
+  const hint = document.getElementById('hint-dni');
+  if (!dni) { showToast('Ingresá un DNI para buscar'); return; }
+
+  hint.textContent = '⏳ Buscando...';
+  hint.style.color = 'var(--teal)';
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?dni=' + encodeURIComponent(dni));
+    const data = await resp.json();
+
+    if (data.error) {
+      hint.textContent = '✗ DNI no encontrado en la planilla';
+      hint.style.color = '#c0392b';
+      return;
+    }
+
+    // Parsear número — el Sheets devuelve punto como decimal (356186.19)
+    function parsearMonto(val) {
+      if (!val || val === '#N/D') return '';
+      let s = String(val).trim().replace(/\s/g, '');
+      // Si tiene coma de miles anglosajona (1,234,567.89) → quitar comas
+      s = s.replace(/,(?=\d{3})/g, '');
+      return parseFloat(s) || '';
+    }
+
+    // Autocompletar campos
+    document.getElementById('caratula').value = data.caratula || '';
+
+    // Jurisdicción — mapeo sin tilde → valor del selector
+    if (data.jurisdiccion) {
+      const MAPA = {
+        'CABA':                 'CABA',
+        'CIUDAD DE BUENOS AIRES':'CABA',
+        'BS AS':                'BS AS',
+        'BUENOS AIRES':         'BS AS',
+        'CORDOBA':              'CÓRDOBA',
+        'CÓRDOBA':              'CÓRDOBA',
+        'SANTA FE':             'SANTA FE',
+        'ENTRE RIOS':           'ENTRE RÍOS',
+        'ENTRE RÍOS':           'ENTRE RÍOS',
+        'MENDOZA':              'MENDOZA',
+        'SAN JUAN':             'SAN JUAN',
+        'SAN LUIS':             'SAN LUIS',
+        'LA RIOJA':             'LA RIOJA',
+        'SALTA':                'SALTA',
+        'JUJUY':                'JUJUY',
+        'TUCUMAN':              'TUCUMÁN',
+        'TUCUMÁN':              'TUCUMÁN',
+        'CATAMARCA':            'CATAMARCA',
+        'SANTIAGO DEL ESTERO':  'SANTIAGO DEL ESTERO',
+        'CORRIENTES':           'CORRIENTES',
+        'CHACO':                'CHACO',
+        'FORMOSA':              'FORMOSA',
+        'MISIONES':             'MISIONES',
+        'NEUQUEN':              'NEUQUÉN',
+        'NEUQUÉN':              'NEUQUÉN',
+        'RIO NEGRO':            'RÍO NEGRO',
+        'RÍO NEGRO':            'RÍO NEGRO',
+        'CHUBUT':               'CHUBUT',
+        'SANTA CRUZ':           'SANTA CRUZ',
+        'TIERRA DEL FUEGO':     'TIERRA DEL FUEGO',
+        'LA PAMPA':             'LA PAMPA',
+      };
+      const key = data.jurisdiccion.trim().toUpperCase();
+      const valor = MAPA[key];
+      if (valor) {
+        document.getElementById('provincia').value = valor;
+        overrideHon  = false;
+        overrideIibb = false;
+        setTimeout(() => {
+          actualizarParams();
+          // Cargar capital y gastos después de que los campos sean visibles
+          const esCba = valor === 'CÓRDOBA';
+          if (esCba) {
+            document.getElementById('capital_cba').value = parsearMonto(data.capital);
+            document.getElementById('gastos_cba').value  = parsearMonto(data.gastos);
+          } else {
+            document.getElementById('capital').value = parsearMonto(data.capital);
+            document.getElementById('gastos').value  = parsearMonto(data.gastos);
+          }
+        }, 50);
+      }
+    }
+
+    hint.textContent = `✓ Cliente encontrado — datos cargados`;
+    hint.style.color = 'var(--green)';
+
+  } catch(e) {
+    hint.textContent = '✗ Error al buscar: ' + e.message;
+    hint.style.color = '#c0392b';
+  }
+}
+
+// ══════════════════════════════════════════
+// ÍNDICES TSJ
+// ══════════════════════════════════════════
+async function cargarIndices() {
+  const hint = document.getElementById('hint-indices');
+  hint.textContent = '⏳ Cargando índices...';
+  hint.style.color = 'var(--teal)';
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    // data = [{fecha: "dd/MM/yyyy", valor: número}, ...]
+    _sheetsData = data.filter(r => r.fecha && r.valor !== null && !isNaN(Number(r.valor)))
+                      .map(r => ({fecha: r.fecha.trim(), valor: Number(r.valor)}));
+    hint.textContent = `✓ ${_sheetsData.length} registros cargados`;
+    hint.style.color = 'var(--green)';
+    autoCompletarIndices();
+  } catch(e) {
+    hint.textContent = '✗ Error: ' + e.message;
+    hint.style.color = '#c0392b';
+  }
+}
+
+function isoADate(iso) {
+  // Convierte "2026-01-01" a Date sin problema de timezone
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function fmtFechaSheet(date) {
+  const d = String(date.getDate()).padStart(2,'0');
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  return `${d}/${m}/${date.getFullYear()}`;
+}
+
+function buscarExacto(date) {
+  const key = fmtFechaSheet(date);
+  const row = _sheetsData.find(r => r.fecha === key);
+  return row ? {valor: row.valor, fecha: key} : null;
+}
+
+function buscarAnterior(date) {
+  const d = new Date(date);
+  for (let i = 1; i <= 10; i++) {
+    d.setDate(d.getDate() - 1);
+    const res = buscarExacto(d);
+    if (res) return res;
+  }
+  return null;
+}
+
+function autoCompletarIndices() {
+  if (!_sheetsData) return;
+  const fechaMora = document.getElementById('fecha_mora').value;
+  const fechaLiq  = document.getElementById('fecha_liq').value;
+
+  // T0 = día de la mora (o hábil anterior si cae feriado/finde)
+  if (fechaMora) {
+    const dm = isoADate(fechaMora);
+    let res = buscarExacto(dm) || buscarAnterior(dm);
+    if (res) {
+      document.getElementById('lbl-t0').textContent = `${res.fecha} = ${res.valor}`;
+      document.querySelector('#row-int-idx').dataset.t0 = res.valor;
+    } else {
+      document.getElementById('lbl-t0').textContent = '⚠ No encontrado';
+    }
+  }
+
+  // Tm = día hábil anterior a la fecha de liquidación
+  if (fechaLiq) {
+    const dl = isoADate(fechaLiq);
+    const res = buscarAnterior(dl);
+    if (res) {
+      document.getElementById('lbl-tm').textContent = `${res.fecha} = ${res.valor}`;
+      document.querySelector('#row-int-idx').dataset.tm = res.valor;
+    } else {
+      document.getElementById('lbl-tm').textContent = '⚠ No encontrado';
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// CALCULAR
+// ══════════════════════════════════════════
+function calcular() {
+  const prov    = document.getElementById('provincia').value;
+  const cfg     = PROVINCIAS[prov] || {hon:0.20, iibb:0};
+  const esCba   = prov === 'CÓRDOBA';
+  const ivaResp = document.getElementById('iva_resp').value === 'SI';
+  const caratula= document.getElementById('caratula').value;
+  const fechaLiq= document.getElementById('fecha_liq').value;
+  const fechaMora=document.getElementById('fecha_mora').value;
+  const pctHon  = (parseFloat(document.getElementById('pct_hon').value)  || 0) / 100;
+  const pctIibb = (parseFloat(document.getElementById('pct_iibb').value) || 0) / 100;
+
+  if (esCba && !fechaMora) { showToast('⚠ La fecha de mora es obligatoria en Córdoba'); document.getElementById('fecha_mora').focus(); return; }
+
+  // ── Leer montos
+  let capital, gastos, int_fin, int_pun, int_cba_idx, int_cba_3pct, aperturaJus, valorJus;
+  valorJus    = esCba ? parsearNum(document.getElementById('valor_jus').value) : 0;
+  aperturaJus = valorJus * 3;
+
+  if (esCba) {
+    capital  = parseFloat(document.getElementById('capital_cba').value) || 0;
+    gastos   = parseFloat(document.getElementById('gastos_cba').value)  || 0;
+    int_fin  = 0;
+    int_pun  = 0;
+    if (valorJus > 0) document.getElementById('r-apertura-jus').value = fmt(aperturaJus);
+
+    // Intereses Córdoba desde índices
+    const t0  = parseFloat(document.querySelector('#row-int-idx').dataset.t0 || 0);
+    const tm  = parseFloat(document.querySelector('#row-int-idx').dataset.tm || 0);
+    const d   = (fechaMora && fechaLiq) ? dias(fechaMora, fechaLiq) : 0;
+    const i_idx  = (t0 > 0 && tm > 0) ? ((100 + tm) / (100 + t0) - 1) * 100 : 0;
+    const i_3pct = (36 / 365) * d;
+    int_cba_idx  = capital * i_idx  / 100;
+    int_cba_3pct = capital * i_3pct / 100;
+
+    // Mostrar en campos de resultado previo
+    document.getElementById('r-intereses-cba').value = fmt(int_cba_idx + int_cba_3pct);
+    document.getElementById('r-variacion-indice').value = i_idx.toFixed(4) + '% + ' + i_3pct.toFixed(4) + '%';
+    document.getElementById('hint-intereses-cba').textContent = `Índice: ${i_idx.toFixed(4)}% + 36%/365 × ${d} días`;
+
+  } else {
+    capital  = parseFloat(document.getElementById('capital').value)  || 0;
+    gastos   = parseFloat(document.getElementById('gastos').value)   || 0;
+    int_fin  = parseFloat(document.getElementById('int_fin').value)  || 0;
+    int_pun  = parseFloat(document.getElementById('int_pun').value)  || 0;
+    int_cba_idx  = 0;
+    int_cba_3pct = 0;
+    aperturaJus  = 0;
+  }
+
+  const gastosTotales = gastos + aperturaJus;
+  const int_total     = esCba ? (int_cba_idx + int_cba_3pct) : (int_fin + int_pun);
+  const iva_int       = int_total * 0.21;
+  const base_hon      = capital + int_total + iva_int + gastosTotales;
+  const hon           = base_hon * pctHon;
+  const iva_hon       = ivaResp ? hon * 0.21 : 0;
+  const iibb_hon      = hon * pctIibb;
+  const total         = capital + int_total + iva_int + gastosTotales + hon + iva_hon + iibb_hon;
+
+  // Quitas
+  const quita        = int_total + iva_int;
+  const total_quita  = total - quita;
+  const quita3       = quita * 0.50;
+  const total3base   = total - quita3;
+  const total3conf   = total3base * 1.06;
+  const cuota3       = total3conf / 3;
+  const quita6       = quita * 0.25;
+  const total6base   = total - quita6;
+  const total6conf   = total6base * 1.12;
+  const cuota6       = total6conf / 6;
+
+  // Guardar para copiar
+  _d = {caratula, prov, fechaLiq, fechaMora, capital, int_fin, int_pun,
+        int_total, int_cba_idx, int_cba_3pct, iva_int, gastos, gastosTotales,
+        aperturaJus, valorJus, hon, iva_hon, iibb_hon, total,
+        total_quita, quita, cuota3, total3conf, cuota6, total6conf,
+        ivaResp, pctHon, pctIibb, esCba};
+
+  // ── Tabla resultado
+  document.getElementById('res-sub').textContent = caratula;
+  document.getElementById('r-capital').textContent   = fmt(capital);
+  document.getElementById('r-int-fin').textContent   = fmt(int_fin);
+  document.getElementById('r-int-pun').textContent   = fmt(int_pun);
+  document.getElementById('r-int-idx').textContent   = fmt(int_cba_idx);
+  document.getElementById('r-int-3pct').textContent  = fmt(int_cba_3pct);
+  document.getElementById('r-int-total').textContent = fmt(int_total);
+  document.getElementById('r-iva-int').textContent   = fmt(iva_int);
+  document.getElementById('r-gastos').textContent    = fmt(gastos);
+  document.getElementById('row-apertura').style.display = aperturaJus > 0 ? '' : 'none';
+  document.getElementById('r-apertura-tabla').textContent = fmt(aperturaJus);
+  document.getElementById('badge-hon').textContent   = pct(pctHon * 100);
+  document.getElementById('r-hon').textContent       = fmt(hon);
+  document.getElementById('r-iva-hon').textContent   = fmt(iva_hon);
+  document.getElementById('badge-iibb').textContent  = pct(pctIibb * 100);
+  document.getElementById('r-iibb').textContent      = fmt(iibb_hon);
+  document.getElementById('r-total').textContent     = fmt(total);
+
+  document.getElementById('row-int-fin').style.display   = esCba ? 'none' : '';
+  document.getElementById('row-int-pun').style.display   = esCba ? 'none' : '';
+  document.getElementById('row-int-idx').style.display   = esCba ? '' : 'none';
+  document.getElementById('row-int-3pct').style.display  = esCba ? '' : 'none';
+  document.getElementById('row-iva-hon').style.display   = ivaResp ? '' : 'none';
+  document.getElementById('row-iibb').style.display      = pctIibb > 0 ? '' : 'none';
+
+  if (esCba) {
+    const t0val = parseFloat(document.querySelector('#row-int-idx').dataset.t0 || 0);
+    const tmval = parseFloat(document.querySelector('#row-int-idx').dataset.tm || 0);
+    const d = (fechaMora && fechaLiq) ? dias(fechaMora, fechaLiq) : 0;
+    const i_idx = (t0val > 0 && tmval > 0) ? ((100 + tmval) / (100 + t0val) - 1) * 100 : 0;
+    document.getElementById('badge-idx').textContent  = i_idx.toFixed(4) + '%';
+    document.getElementById('badge-dias').textContent = d + ' días';
+  }
+
+  // Meta bar
+  document.getElementById('m-prov').textContent  = prov;
+  document.getElementById('m-mora').textContent  = fechaMora ? fmtF(fechaMora) : 'No indicado';
+  document.getElementById('m-fecha').textContent = fmtF(fechaLiq);
+  document.getElementById('m-hon').textContent   = pct(pctHon * 100);
+  document.getElementById('m-iva').textContent   = ivaResp ? 'Sí — 21%' : 'No aplica';
+
+  // ── Opciones de pago
+  function detBase(sinIntereses) {
+    let h = '';
+    if (!sinIntereses) {
+      h += `<div class="pdr"><span>Capital</span><span>${fmt(capital)}</span></div>`;
+      h += `<div class="pdr"><span>Intereses</span><span>${fmt(int_total)}</span></div>`;
+      h += `<div class="pdr"><span>IVA s/ intereses (21%)</span><span>${fmt(iva_int)}</span></div>`;
+    } else {
+      h += `<div class="pdr"><span>Capital</span><span>${fmt(capital)}</span></div>`;
+    }
+    h += `<div class="pdr"><span>Gastos judiciales</span><span>${fmt(gastos)}</span></div>`;
+    if (aperturaJus > 0) h += `<div class="pdr"><span>Apertura de carpeta (3 jus)</span><span>${fmt(aperturaJus)}</span></div>`;
+    h += `<div class="pdr"><span>Honorarios (${pct(pctHon*100)})</span><span>${fmt(hon)}</span></div>`;
+    if (ivaResp) h += `<div class="pdr"><span>IVA s/ honorarios</span><span>${fmt(iva_hon)}</span></div>`;
+    if (pctIibb > 0) h += `<div class="pdr"><span>IIBB s/ honorarios</span><span>${fmt(iibb_hon)}</span></div>`;
+    return h;
+  }
+
+  // Opción 1: Contado con quita 100%
+  let det1 = `<div class="quita-banner">✦ Quita aplicada: 100% de intereses e IVA s/ intereses<br>Ahorro: − ${fmt(quita)}</div>`;
+  det1 += detBase(true);
+  det1 += `<div class="pdr saving" style="padding-top:8px;border-top:1.5px solid var(--green);"><span><strong>Total a pagar</strong></span><span><strong>${fmt(total_quita)}</strong></span></div>`;
+
+  // Opción 2: 3 cuotas
+  let det2 = `<div class="quita-banner-blue">✦ Quita 50% de intereses: − ${fmt(quita3)}</div>`;
+  det2 += detBase(false);
+  det2 += `<div class="pdr" style="margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)"><span>Subtotal con quita</span><span>${fmt(total3base)}</span></div>`;
+  det2 += `<div class="pdr"><span>Interés financiación (6%)</span><span>${fmt(total3base * 0.06)}</span></div>`;
+  det2 += `<div class="pdr" style="padding-top:8px;border-top:1.5px solid var(--line);font-weight:700"><span>Cuota mensual (× 3)</span><span>${fmt(cuota3)}</span></div>`;
+
+  // Opción 3: 6 cuotas
+  let det3 = `<div class="quita-banner-blue">✦ Quita 25% de intereses: − ${fmt(quita6)}</div>`;
+  det3 += detBase(false);
+  det3 += `<div class="pdr" style="margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)"><span>Subtotal con quita</span><span>${fmt(total6base)}</span></div>`;
+  det3 += `<div class="pdr"><span>Interés financiación (12%)</span><span>${fmt(total6base * 0.12)}</span></div>`;
+  det3 += `<div class="pdr" style="padding-top:8px;border-top:1.5px solid var(--line);font-weight:700"><span>Cuota mensual (× 6)</span><span>${fmt(cuota6)}</span></div>`;
+
+  document.getElementById('p1-tachado').textContent = fmt(total);
+  document.getElementById('p1-total').textContent   = fmt(total_quita);
+  document.getElementById('p2-total').textContent   = fmt(cuota3);
+  document.getElementById('p3-total').textContent   = fmt(cuota6);
+  document.getElementById('p1-det').innerHTML = det1;
+  document.getElementById('p2-det').innerHTML = det2;
+  document.getElementById('p3-det').innerHTML = det3;
+
+  const res = document.getElementById('resultado');
+  res.style.display = 'block';
+  setTimeout(() => res.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+// ══════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════
+function togglePay(el) {
+  const det = el.querySelector('.pay-detail');
+  const open = det.classList.contains('open');
+  document.querySelectorAll('.pay-detail').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.pay-option').forEach(p => p.classList.remove('open'));
+  if (!open) { det.classList.add('open'); el.classList.add('open'); }
+}
+
+function copiarCliente() {
+  const d = _d; if (!d.caratula) { showToast('Primero calculá una liquidación'); return; }
+  const mora = d.fechaMora ? `Fecha de mora: ${fmtF(d.fechaMora)}\n` : '';
+  const txt = `OPCIONES DE PAGO\n${'─'.repeat(48)}\n${d.caratula}\nJurisdicción: ${d.prov}  |  Fecha: ${fmtF(d.fechaLiq)}\n${mora}\nTOTAL DEUDA ACTUALIZADA: ${fmt(d.total)}\n\nOPCIONES DE REGULARIZACIÓN:\n\n  1. Contado c/ quita 100% de intereses\n     Ahorro: − ${fmt(d.quita)}\n     TOTAL A PAGAR: ${fmt(d.total_quita)}  ← BENEFICIO ESPECIAL\n\n  2. Plan en 3 cuotas (50% quita + 6% financiación)\n     ${fmt(d.cuota3)} por mes × 3 meses\n\n  3. Plan en 6 cuotas (25% quita + 12% financiación)\n     ${fmt(d.cuota6)} por mes × 6 meses\n\n(*) Propuesta sujeta a aprobación judicial.\n\nEstudio Jurídico Mansilla Garzón & Asociados`;
+  navigator.clipboard.writeText(txt).then(() => showToast('Opciones cliente copiadas ✓'));
+}
+
+function copiarInterno() {
+  const d = _d; if (!d.caratula) { showToast('Primero calculá una liquidación'); return; }
+  const mora = d.fechaMora ? fmtF(d.fechaMora) : 'No indicado';
+  let interesesDetalle = d.esCba
+    ? `Intereses:\n  · Tasa pasiva:     ${fmt(d.int_cba_idx)}\n  · 3% mensual:     ${fmt(d.int_cba_3pct)}\n  · Total:          ${fmt(d.int_total)}`
+    : `Intereses:\n  · Financieros:    ${fmt(d.int_fin)}\n  · Punitorios:     ${fmt(d.int_pun)}\n  · Total:          ${fmt(d.int_total)}`;
+  const txt = `LIQUIDACIÓN JUDICIAL\n${'─'.repeat(44)}\n${d.caratula}\nFecha de liquidación:   ${fmtF(d.fechaLiq)}\nFecha de mora:          ${mora}\nJurisdicción:           ${d.prov}\n% Honorarios:           ${pct(d.pctHon*100)}${overrideHon?' (manual)':''}\n% IIBB:                 ${pct(d.pctIibb*100)}\nIVA honorarios:         ${d.ivaResp?'Sí (21%)':'No'}\n${'─'.repeat(44)}\nCapital:                ${fmt(d.capital)}\n${interesesDetalle}\nIVA s/ intereses:       ${fmt(d.iva_int)}\nGastos judiciales:      ${fmt(d.gastos)}${d.aperturaJus>0?`\nApertura carpeta (3 jus):${fmt(d.aperturaJus)}`:''}\nHonorarios:             ${fmt(d.hon)}${d.ivaResp?`\nIVA s/ honorarios:      ${fmt(d.iva_hon)}`:''}\n${'─'.repeat(44)}\nTOTAL:                  ${fmt(d.total)}\n\nEstudio Jurídico Mansilla Garzón & Asociados`;
+  navigator.clipboard.writeText(txt).then(() => showToast('Registro interno copiado ✓'));
+}
+
+function limpiar() {
+  overrideHon = false; overrideIibb = false;
+  document.getElementById('hint-hon').textContent  = 'Automático por provincia'; document.getElementById('hint-hon').style.color  = '';
+  document.getElementById('hint-iibb').textContent = 'Automático por provincia'; document.getElementById('hint-iibb').style.color = '';
+  document.getElementById('resultado').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
